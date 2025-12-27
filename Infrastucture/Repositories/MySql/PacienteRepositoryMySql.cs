@@ -22,6 +22,9 @@ public class PacienteRepositoryMySql : IPacienteRepository
         using var cmd = new MySqlCommand("usp_pacientes_listar", cn);
         cmd.CommandType = CommandType.StoredProcedure;
 
+        //  IMPORTANTE: si el SP tiene filtro, le pasamos vacío
+        cmd.Parameters.AddWithValue("p_filtro", "");
+
         using var dr = await cmd.ExecuteReaderAsync();
         while (await dr.ReadAsync())
         {

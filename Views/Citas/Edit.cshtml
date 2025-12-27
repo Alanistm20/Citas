@@ -12,8 +12,10 @@
     <a class="btn btn-secondary" asp-action="Index">Volver</a>
 </div>
 
-<form asp-action="Edit" method="post" class="row g-3">
+<form asp-action="Edit" asp-route-id="@Model.IdCita" method="post" class="row g-3">
     @Html.AntiForgeryToken()
+
+    <!-- Mantén el Id en el body por si acaso -->
     <input type="hidden" asp-for="IdCita" />
 
     <div class="col-md-6">
@@ -22,9 +24,12 @@
             <option value="">-- Seleccione --</option>
             @foreach (var p in pacientes)
             {
-                <option value="@p.IdPaciente">@p.Nombre</option>
+                <option value="@p.IdPaciente" selected="@(p.IdPaciente == Model.IdPaciente)">
+                    @p.Nombre
+                </option>
             }
         </select>
+        <span class="text-danger" asp-validation-for="IdPaciente"></span>
     </div>
 
     <div class="col-md-6">
@@ -33,41 +38,60 @@
             <option value="">-- Seleccione --</option>
             @foreach (var m in medicos)
             {
-                <option value="@m.IdMedico">@m.Nombre (@m.Especialidad)</option>
+                <option value="@m.IdMedico" selected="@(m.IdMedico == Model.IdMedico)">
+                    @m.Nombre (@m.Especialidad)
+                </option>
             }
         </select>
+        <span class="text-danger" asp-validation-for="IdMedico"></span>
     </div>
 
     <div class="col-md-4">
         <label class="form-label">Fecha</label>
         <input class="form-control" asp-for="Fecha" type="date" required />
+        <span class="text-danger" asp-validation-for="Fecha"></span>
     </div>
 
     <div class="col-md-4">
         <label class="form-label">Hora inicio</label>
-        <input class="form-control" asp-for="HoraInicio" type="time" required />
+
+        <!-- TimeSpan + input time: forzamos HH:mm -->
+        <input class="form-control"
+               name="HoraInicio"
+               type="time"
+               required
+               value="@Model.HoraInicio.ToString(@"hh\:mm")" />
+
+        <span class="text-danger" asp-validation-for="HoraInicio"></span>
     </div>
 
     <div class="col-md-4">
         <label class="form-label">Estado</label>
         <select class="form-select" asp-for="Estado" required>
-            <option value="PENDIENTE">PENDIENTE</option>
-            <option value="ATENDIDA">ATENDIDA</option>
-            <option value="CANCELADA">CANCELADA</option>
+            <option value="PENDIENTE" selected="@(Model.Estado == "PENDIENTE")">PENDIENTE</option>
+            <option value="ATENDIDA" selected="@(Model.Estado == "ATENDIDA")">ATENDIDA</option>
+            <option value="CANCELADA" selected="@(Model.Estado == "CANCELADA")">CANCELADA</option>
         </select>
+        <span class="text-danger" asp-validation-for="Estado"></span>
     </div>
 
     <div class="col-md-8">
         <label class="form-label">Motivo</label>
         <input class="form-control" asp-for="Motivo" maxlength="300" />
+        <span class="text-danger" asp-validation-for="Motivo"></span>
     </div>
 
     <div class="col-md-4">
         <label class="form-label">Precio</label>
         <input class="form-control" asp-for="Precio" type="number" step="0.01" min="0" required />
+        <span class="text-danger" asp-validation-for="Precio"></span>
     </div>
 
     <div class="col-12">
         <button type="submit" class="btn btn-warning">Guardar cambios</button>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

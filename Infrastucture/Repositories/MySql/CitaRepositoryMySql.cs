@@ -42,6 +42,34 @@ public class CitaRepositoryMySql : ICitaRepository
         return lista;
     }
 
+    public async Task<Cita?> BuscarPorIdAsync(int idCita)
+    {
+        using var cn = _factory.Create();
+        await cn.OpenAsync();
+
+        using var cmd = new MySqlCommand("usp_citas_buscar_por_id", cn);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("p_id_cita", idCita);
+
+        using var dr = await cmd.ExecuteReaderAsync();
+        if (!await dr.ReadAsync()) return null;
+
+        // IMPORTANTE:
+        // Para Edit necesitas IdPaciente e IdMedico para seleccionar en combos,
+        // pero tu SP debe devolverlos.
+        return new Cita
+        {
+            IdCita = dr.GetInt32("id_cita"),
+            IdPaciente = dr.GetInt32("id_paciente"),
+            IdMedico = dr.GetInt32("id_medico"),
+            Fecha = dr.GetDateTime("fecha"),
+            HoraInicio = dr.GetTimeSpan("hora_inicio"),
+            Motivo = dr.IsDBNull("motivo") ? "" : dr.GetString("motivo"),
+            Precio = dr.GetDecimal("precio"),
+            Estado = dr.GetString("estado")
+        };
+    }
+
     public async Task CrearAsync(Cita cita)
     {
         using var cn = _factory.Create();
@@ -50,19 +78,47 @@ public class CitaRepositoryMySql : ICitaRepository
         using var cmd = new MySqlCommand("usp_citas_crear", cn);
         cmd.CommandType = CommandType.StoredProcedure;
 
-        cmd.Parameters.AddWithValue("@p_id_paciente", cita.IdPaciente);
-        cmd.Parameters.AddWithValue("@p_id_medico", cita.IdMedico);
-        cmd.Parameters.AddWithValue("@p_fecha", cita.Fecha.Date);
-        cmd.Parameters.AddWithValue("@p_hora_inicio", cita.HoraInicio);
-        cmd.Parameters.AddWithValue("@p_motivo", cita.Motivo ?? "");
-        cmd.Parameters.AddWithValue("@p_precio", cita.Precio);
-        cmd.Parameters.AddWithValue("@p_estado", cita.Estado ?? "PENDIENTE");
+        cmd.Parameters.AddWithValue("p_id_paciente", cita.IdPaciente);
+        cmd.Parameters.AddWithValue("p_id_medico", cita.IdMedico);
+        cmd.Parameters.AddWithValue("p_fecha", cita.Fecha.Date);
+        cmd.Parameters.AddWithValue("p_hora_inicio", cita.HoraInicio);
+        cmd.Parameters.AddWithValue("p_motivo", cita.Motivo ?? "");
+        cmd.Parameters.AddWithValue("p_precio", cita.Precio);
+        cmd.Parameters.AddWithValue("p_estado", cita.Estado ?? "PENDIENTE");
 
         await cmd.ExecuteNonQueryAsync();
     }
 
-    // Deja los demás como los tienes o impleméntalos luego:
-    public Task<Cita?> BuscarPorIdAsync(int idCita) => Task.FromResult<Cita?>(null);
-    public Task ActualizarAsync(Cita cita) => Task.CompletedTask;
-    public Task EliminarAsync(int idCita) => Task.CompletedTask;
+    public async Task ActualizarAsync(Cita cita)
+    {
+        using var cn = _factory.Create();
+        await cn.OpenAsync();
+
+        using var cmd = new MySqlCommand("usp_citas_actualizar", cn);
+        cmd.CommandType = CommandType.StoredProcedure;
+
+        cmd.Parameters.AddWithValue("p_id_cita", cita.IdCita);
+        cmd.Parameters.AddWithValue("p_id_paciente", cita.IdPaciente);
+        cmd.Parameters.AddWithValue("p_id_medico", cita.IdMedico);
+        cmd.Parameters.AddWithValue("p_fecha", cita.Fecha.Date);
+        cmd.Parameters.AddWithValue("p_hora_inicio", cita.HoraInicio);
+        cmd.Parameters.AddWithValue("p_motivo", cita.Motivo ?? "");
+        cmd.Parameters.AddWithValue("p_precio", cita.Precio);
+        cmd.Parameters.AddWithValue("p_estado", cita.Estado ?? "PENDIENTE");
+
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async Task EliminarAsync(int idCita)
+    {
+        using var cn = _factory.Create();
+        await cn.OpenAsync();
+
+        using var cmd = new MySqlCommand("usp_citas_eliminar", cn);
+        cmd.CommandType = CommandType.StoredProcedure;
+
+        cmd.Parameters.AddWithValue("p_id_cita", idCita);
+
+        await cmd.ExecuteNonQueryAsync();
+    }
 }
