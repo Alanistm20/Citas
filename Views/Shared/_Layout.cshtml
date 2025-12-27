@@ -1,0 +1,122 @@
+﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Citas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+   
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    @{
+        var idUsuario = Context.Session.GetInt32("id_usuario");
+        var username = Context.Session.GetString("username");
+        var rol = (Context.Session.GetString("rol") ?? "").ToUpperInvariant();
+
+        bool isLogged = idUsuario != null;
+        bool isAdmin = rol == "ADMIN";
+        bool isMedico = rol == "MEDICO";
+        bool isPaciente = rol == "PACIENTE";
+    }
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Citas</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav me-auto">
+
+                    @if (isLogged)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
+                        </li>
+
+                        @* ===== ADMIN ===== *@
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Citas" asp-action="Index">Citas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Medicos" asp-action="Index">Médicos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Pacientes" asp-action="Index">Pacientes</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            </li>
+                        }
+
+                        @* ===== MÉDICO ===== *@
+                        @if (isMedico)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Citas" asp-action="Index">Mis Citas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Perfil" asp-action="Medico">Mi Perfil</a>
+                            </li>
+                        }
+
+                        @* ===== PACIENTE ===== *@
+                        @if (isPaciente)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Citas" asp-action="Index">Mis Citas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Perfil" asp-action="Paciente">Mi Perfil</a>
+                            </li>
+                        }
+                    }
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (!isLogged)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <span class="navbar-text text-light me-3">
+                                @username (@rol)
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" asp-controller="Auth" asp-action="Logout">Salir</a>
+                        </li>
+                    }
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
+        @RenderBody()
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

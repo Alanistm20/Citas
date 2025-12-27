@@ -1,0 +1,28 @@
+﻿@model Citas.Domain.Entities.Cita
+
+@{
+    ViewData["Title"] = "Eliminar Cita";
+}
+
+<h2>Eliminar Cita</h2>
+<hr />
+
+<div class="alert alert-warning">
+    ¿Seguro que deseas eliminar la cita <strong>#@Model.IdCita</strong>?
+</div>
+
+<ul class="list-group mb-3">
+    <li class="list-group-item"><b>Fecha:</b> @Model.Fecha.ToString("yyyy-MM-dd")</li>
+    <li class="list-group-item"><b>Hora:</b> @Model.HoraInicio.ToString(@"hh\:mm")</li>
+    <li class="list-group-item"><b>Motivo:</b> @Model.Motivo</li>
+    <li class="list-group-item"><b>Precio:</b> @Model.Precio.ToString("0.00")</li>
+    <li class="list-group-item"><b>Estado:</b> @Model.Estado</li>
+</ul>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.IdCita" />
+
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
+</form>
