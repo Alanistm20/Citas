@@ -10,5 +10,8 @@ public class PacienteService
     public PacienteService(IPacienteRepository repo) => _repo = repo;
 
     public Task<List<Paciente>> ListarAsync() => _repo.ListarAsync();
+
+    public Task CrearAsync(Paciente paciente) => _repo.CrearAsync(paciente);
+
 }
 

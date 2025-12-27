@@ -10,4 +10,6 @@ public class MedicoService
     public MedicoService(IMedicoRepository repo) => _repo = repo;
 
     public Task<List<Medico>> ListarAsync() => _repo.ListarAsync();
+
+    public Task CrearAsync(Medico medico) => _repo.CrearAsync(medico);
 }

@@ -36,4 +36,19 @@ public class MedicoRepositoryMySql : IMedicoRepository
 
         return lista;
     }
+
+    public async Task CrearAsync(Medico medico)
+    {
+        using var cn = _factory.Create();
+        await cn.OpenAsync();
+
+        using var cmd = new MySqlCommand("usp_medicos_crear", cn);
+        cmd.CommandType = CommandType.StoredProcedure;
+
+        cmd.Parameters.AddWithValue("p_nombre", medico.Nombre);
+        cmd.Parameters.AddWithValue("p_especialidad", medico.Especialidad ?? "");
+        cmd.Parameters.AddWithValue("p_activo", medico.Activo ? 1 : 0);
+
+        await cmd.ExecuteNonQueryAsync();
+    }
 }

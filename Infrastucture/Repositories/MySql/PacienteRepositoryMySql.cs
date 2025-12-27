@@ -40,4 +40,21 @@ public class PacienteRepositoryMySql : IPacienteRepository
 
         return lista;
     }
+
+
+    public async Task CrearAsync(Paciente paciente)
+    {
+        using var cn = _factory.Create();
+        await cn.OpenAsync();
+
+        using var cmd = new MySqlCommand("usp_pacientes_crear", cn);
+        cmd.CommandType = CommandType.StoredProcedure;
+
+        cmd.Parameters.AddWithValue("p_nombre", paciente.Nombre);
+        cmd.Parameters.AddWithValue("p_dni", paciente.Dni);
+        cmd.Parameters.AddWithValue("p_telefono", paciente.Telefono ?? "");
+        cmd.Parameters.AddWithValue("p_activo", paciente.Activo ? 1 : 0);
+
+        await cmd.ExecuteNonQueryAsync();
+    }
 }
